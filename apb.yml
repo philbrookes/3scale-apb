@@ -1,0 +1,24 @@
+name: 3scale-apb
+image: pbrookes/3scale-apb
+description: 3scale API gateway
+bindable: False
+async: optional
+metadata:
+  displayName: 3Scale
+  console.openshift.io/iconClass: fa fa-superpowers
+plans:
+  - name: default
+    description: Deploy 3Scale
+    free: True
+    metadata: {}
+    parameters:
+    - name: THREESCALE_DOMAIN
+      required: True
+      default: 
+      type: string
+      title: 3scale domain name, i.e. "example-admin.3scale.net"
+    - name: THREESCALE_ACCESS_TOKEN
+      required: True
+      default: 
+      type: string
+      title: 3scale access token (https://support.3scale.net/docs/accounts/tokens#creating-access-tokens)

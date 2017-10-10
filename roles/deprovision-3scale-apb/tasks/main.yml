@@ -1,0 +1,8 @@
+- 
+  name: delete apicast resoures
+  command: oc delete {{ item }} {{ threescale_name }}
+  with_items:
+    - secret
+    - dc
+    - service
+    - route
