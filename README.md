@@ -9,7 +9,7 @@
 
 ### Process
 
-After making your required changes, update the `apb.yml` to point at your own docker organisation, then run:
+After making your required changes, update the `apb.yml` to point at your own docker organisation, run:
 
 ```bash
 make DOCKERORG=<your docker org>
