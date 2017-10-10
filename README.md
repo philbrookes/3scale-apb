@@ -12,7 +12,7 @@
 After making your required changes, update the `apb.yml` to point at your own docker organisation, run:
 
 ```bash
-make DOCKERORG=<your docker org>
+make DOCKERORG=<your docker org> DOCKERHOST=<defaulting to docker.io>
 ```
 
 Login to your oc cluster:
