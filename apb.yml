@@ -1,6 +1,6 @@
 name: 3scale-apb
-image: pbrookes/3scale-apb
-description: 3scale API gateway
+image: feedhenry/3scale-apb
+description: Unlock the power of your APIs
 bindable: False
 async: optional
 metadata:
@@ -16,9 +16,9 @@ plans:
       required: True
       default: 
       type: string
-      title: 3scale domain name, i.e. "example-admin.3scale.net"
+      title: 3Scale domain name, i.e. "example-admin.3scale.net"
     - name: THREESCALE_ACCESS_TOKEN
       required: True
       default: 
       type: string
-      title: 3scale access token (https://support.3scale.net/docs/accounts/tokens#creating-access-tokens)
+      title: 3Scale access token (https://support.3scale.net/docs/accounts/tokens#creating-access-tokens)
