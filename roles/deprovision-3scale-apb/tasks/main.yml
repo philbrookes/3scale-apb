@@ -8,7 +8,16 @@
   name: delete apicast resoures
   command: oc delete {{ item }} {{ threescale_name }}
   with_items:
-    - secret
     - dc
     - service
     - route
+
+- 
+  name: delete apicast config url secret
+  command: oc delete secret apicast-configuration-url-secret
+
+- name: delete cors plugin configmaps
+  command: oc delete configmap {{ item }}
+  with_items:
+    - apicast-cors
+    - cors-conf
