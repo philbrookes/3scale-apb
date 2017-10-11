@@ -1,3 +1,40 @@
+- name: create 3Scale Redis deployment config
+  openshift_v1_deployment_config:
+    name: '{{ threescale_redis_name }}'
+    namespace: '{{ namespace }}'
+    labels:
+      app: 3scale-gateway
+      service: 3scale-gateway
+    replicas: 1
+    selector:
+      app: 3scale-gateway
+      service: 3scale-gateway
+    spec_template_metadata_labels:
+      app: 3scale-gateway
+      service: 3scale-gateway
+    containers:
+    - env:
+      image: docker.io/rhmap/redis:2.18.22
+      name: '{{ threescale_redis_name }}'
+      ports:
+      - container_port: 6379
+        protocol: TCP
+
+- name: create 3Scale Redis service
+  k8s_v1_service:
+    name: '{{ threescale_redis_name }}'
+    namespace: '{{ namespace }}'
+    labels:
+      app: 3scale-gateway
+      service: 3scale-gateway
+    selector:
+      app: 3scale-gateway
+      service: 3scale-gateway
+    ports:
+      - name: '{{ threescale_redis_name }}'
+        port: 6379
+        target_port: 6379
+
 - name: "Create 3scale basic-auth secret template"
   template:
     src: secret.yml.j2
@@ -8,6 +45,9 @@
 
 - name: "Create 3scale resources"
   shell: "oc new-app -f {{ threescale_deploy_template }}"
+
+- name: "update redis_url in 3scale deployment config"
+  shell: "oc env dc/apicast --overwrite REDIS_URL=redis://'{{ threescale_redis_name }}':6379"
 
 - name: "Update deployment image name"
   shell: "oc patch dc/apicast --type='json' -p='[{\"op\": \"replace\", \"path\": \"/spec/template/spec/containers/0/image\", \"value\":\"{{ threescale_image }}\"}]'"

@@ -1,2 +1,3 @@
 threescale_basic_auth_secret_name: "apicast-configuration-url-secret"
 threescale_name: "apicast"
+threescale_redis_name: "redis-3scale"
