@@ -6,7 +6,7 @@ description: >
   and domain for the account it should pull it's configuration values from (usually in 3scale.net).
 
   You can create an account with 3scale.net here: https://www.3scale.net/signup/
-bindable: False
+bindable: True
 async: optional
 tags:
   - mobile-service
@@ -30,6 +30,11 @@ plans:
       default: 
       type: string
       title: 3Scale access token (https://support.3scale.net/docs/accounts/tokens#creating-access-tokens)
+    - name: THREESCALE_SERVICE_ID
+      required: True
+      default: 
+      type: string
+      title: 3Scale service id
     - name: THREESCALE_ENABLE_CORS
       required: True
       default: True

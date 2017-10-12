@@ -2,7 +2,9 @@ DOCKERHOST = docker.io
 DOCKERORG = feedhenry
 USER=$(shell id -u)
 PWS=$(shell pwd)
-build_and_push: apb_build docker_push
+ASB_HOST = asb-1338-ansible-service-broker.192.168.37.1.nip.io
+
+build_and_push: apb_build docker_push apb_push
 
 .PHONY: build
 build: apb_build
@@ -15,3 +17,7 @@ apb_build:
 .PHONY: docker_push
 docker_push:
 	docker push $(DOCKERHOST)/$(DOCKERORG)/3scale-apb
+
+.PHONY: apb_push
+apb_push:
+	docker run --rm -u $(USER) -v $(PWD):/mnt:z feedhenry/apb push --broker=$(ASB_HOST)

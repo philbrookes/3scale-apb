@@ -1,0 +1,20 @@
+- name: Create bind.sh
+  copy:
+    src: ../files/bind.sh
+    dest: /tmp/
+
+- name: Make bind script executable
+  file:
+    dest: /tmp/bind.sh
+    mode: u+x
+
+- name: Get 3scale token
+  shell: oc get secret {{ bind_params.threescale_secret_name }} -o json | jq ".data.password" | tr -d '"' | base64 -d | cut -f1 -d'@' | cut -f3 -d'/'
+  register: threescale_token_raw
+
+- name: Get 3scale url
+  shell: oc get secret {{ bind_params.threescale_secret_name }} -o json | jq ".data.password" | tr -d '"' | base64 -d | cut -f2 -d'@'
+  register: threescale_url_raw
+
+- name: Execute bind script
+  shell: bash /tmp/bind.sh "{{ threescale_token_raw.stdout }}" "https://{{ threescale_url_raw.stdout }}" "{{ provision_params.THREESCALE_SERVICE_ID }}" "{{ bind_params.apicast_route }}" "{{ bind_params.service_route }}" "{{ bind_params.service_secret_name }}" "{{ bind_params.app_key }}"
