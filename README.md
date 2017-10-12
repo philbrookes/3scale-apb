@@ -8,14 +8,13 @@
 - local [catasb](https://github.com/fusor/catasb) or similar oc cluster, which is configured to read from your docker org.
 
 **NOTE:**
-Due to using an older version of the ASB, it is recommended using the `apb` like the following:
+Due to our usage of an older version of the ASB, it is recommended using the `apb` CLI like the following:
 
 ```bash
 alias apb='docker run --rm --privileged -v $PWD:/mnt -v $HOME/.kube:/.kube -v /var/run/docker.sock:/var/run/docker.sock -u $UID docker.io/feedhenry/apb'
 ```
 
-Instead of the `abp` alias, you might want to use a modified alias, such as `apb-fh`, to not conflict w/ other versions that might be installed. 
-
+Instead of the `abp` alias, you might want to use a modified alias, such as `apb-fh`, to not conflict w/ other versions that might be installed already on your machine.
 
 ### Process
 
