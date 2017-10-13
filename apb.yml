@@ -13,6 +13,7 @@ tags:
 metadata:
   displayName: 3Scale
   console.openshift.io/iconClass: fa fa-superpowers
+  serviceName: 3scale
 plans:
   - name: default
     description: Deploy 3Scale
