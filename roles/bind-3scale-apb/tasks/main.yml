@@ -8,13 +8,25 @@
     dest: /tmp/bind.sh
     mode: u+x
 
-- name: Get 3scale token
-  shell: oc get secret {{ bind_params.threescale_secret_name }} -o json | jq ".data.password" | tr -d '"' | base64 -d | cut -f1 -d'@' | cut -f3 -d'/'
-  register: threescale_token_raw
-
-- name: Get 3scale url
-  shell: oc get secret {{ bind_params.threescale_secret_name }} -o json | jq ".data.password" | tr -d '"' | base64 -d | cut -f2 -d'@'
-  register: threescale_url_raw
-
 - name: Execute bind script
-  shell: bash /tmp/bind.sh "{{ threescale_token_raw.stdout }}" "https://{{ threescale_url_raw.stdout }}" "{{ provision_params.THREESCALE_SERVICE_ID }}" "{{ bind_params.apicast_route }}" "{{ bind_params.service_route }}" "{{ bind_params.service_secret_name }}" "{{ bind_params.app_key }}"
+  shell: bash /tmp/bind.sh "{{ provision_params.THREESCALE_ACCESS_TOKEN }}" "https://{{ provision_params.THREESCALE_DOMAIN }}" "{{ provision_params.THREESCALE_SERVICE_ID }}" "{{ bind_params.apicast_route }}" "{{ bind_params.service_route }}" "{{ bind_params.service_name }}" "{{ bind_params.app_key }}"
+
+- name: Get 3Scale App ID
+  shell: bash /tmp/app_id.sh "{{ provision_params.THREESCALE_ACCESS_TOKEN }}" "https://{{ provision_params.THREESCALE_DOMAIN }}" "{{ provision_params.THREESCALE_SERVICE_ID }}"
+  register: threescale_app_id
+
+- debug: var=threescale_app_id.stdout
+
+- name: Create 3scale secret
+  template:
+    src: bind.json.j2
+    dest: /tmp/bind-raw.json
+
+- name: check file contents
+  shell: cat /tmp/bind-raw.json
+  register: bind_raw
+
+- debug: var=bind_raw.stdout
+
+- name: Encode bind details
+  shell: "cat /tmp/bind-raw.json | base64 -w 0 > /var/tmp/bind-creds"
