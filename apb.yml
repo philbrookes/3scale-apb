@@ -1,5 +1,5 @@
+version: 1.0
 name: 3scale-apb
-image: feedhenry/3scale-apb
 description: >
   Unlock the power of your APIs. This will deploy Apicast to your Openshift cluster and connect 
   it to a dedicated Redis. For this to function correctly it needs to be configured with a token
