@@ -3,6 +3,11 @@
     src: ../files/bind.sh
     dest: /tmp/
 
+- name: Create app_id.sh
+  copy:
+    src: ../files/app_id.sh
+    dest: /tmp/
+
 - name: Make bind script executable
   file:
     dest: /tmp/bind.sh
