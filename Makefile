@@ -11,7 +11,7 @@ build: apb_build
 
 .PHONY: apb_build
 apb_build:
-	docker run --rm -u $(USER) -v $(PWD):/mnt:z feedhenry/apb prepare
+	docker run --rm --privileged -v $(PWD):/mnt:z -v $(HOME)/.kube:/.kube -v /var/run/docker.sock:/var/run/docker.sock -u $(USER) docker.io/ansibleplaybookbundle/apb:latest prepare
 	docker build -t $(DOCKERHOST)/$(DOCKERORG)/3scale-apb:$(TAG) .
 
 .PHONY: docker_push
@@ -20,4 +20,5 @@ docker_push:
 
 .PHONY: apb_push
 apb_push:
-	docker run --rm -u $(USER) -v $(PWD):/mnt:z feedhenry/apb push
+	docker run --rm --privileged -v $(PWD):/mnt:z -v $(HOME)/.kube:/.kube -v /var/run/docker.sock:/var/run/docker.sock -u $(USER) docker.io/ansibleplaybookbundle/apb:latest push
+
