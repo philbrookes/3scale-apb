@@ -13,6 +13,11 @@
     dest: /tmp/bind.sh
     mode: u+x
 
+- name: Make appid script executable
+  file:
+    dest: /tmp/app_id.sh
+    mode: u+x
+
 - name: Execute bind script
   shell: bash /tmp/bind.sh "{{ provision_params.THREESCALE_ACCESS_TOKEN }}" "https://{{ provision_params.THREESCALE_DOMAIN }}" "{{ provision_params.THREESCALE_SERVICE_ID }}" "{{ bind_params.apicast_route }}" "{{ bind_params.service_route }}" "{{ bind_params.service_name }}" "{{ bind_params.app_key }}"
 
@@ -22,16 +27,18 @@
 
 - debug: var=threescale_app_id.stdout
 
-- name: Create 3scale secret
-  template:
-    src: bind.json.j2
-    dest: /tmp/bind-raw.json
+- name: Encode apicast route
+  shell: echo "{{ bind_params.apicast_route }}" | base64
+  register: encoded_apicast_route
 
-- name: check file contents
-  shell: cat /tmp/bind-raw.json
-  register: bind_raw
+- name: Encode app_id
+  shell: echo "{{ threescale_app_id.stdout }}" | base64
+  register: encoded_app_id
 
-- debug: var=bind_raw.stdout
+- name: Encode app_key
+  shell: echo "{{ bind_params.app_key }}" | base64
+  register: encoded_app_key
 
-- name: Encode bind details
-  shell: "cat /tmp/bind-raw.json | base64 -w 0 > /var/tmp/bind-creds"
+- name: "Update Service Secret with apicast/3scale details"
+  shell: "oc patch secret/{{ bind_params.service_secret }} --type=json -p '[{\"op\": \"add\", \"path\": \"/data/apicast_route\", \"value\":\"{{ encoded_apicast_route }}\"},{\"op\": \"add\", \"path\": \"/data/apicast_app_id\", \"value\":\"{{ encoded_app_id }}\"},{\"op\": \"add\", \"path\": \"/data/apicast_app_key\", \"value\":\"{{ encoded_app_key }}\"}]' -n {{ namespace }}"
+
