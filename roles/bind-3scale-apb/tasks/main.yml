@@ -42,3 +42,6 @@
 - name: "Update Service Secret with apicast/3scale details"
   shell: "oc patch secret/{{ service_secret }} --type=json -p '[{\"op\": \"add\", \"path\": \"/data/apicast_route\", \"value\":\"{{ encoded_apicast_route.stdout }}\"},{\"op\": \"add\", \"path\": \"/data/apicast_app_id\", \"value\":\"{{ encoded_app_id.stdout }}\"},{\"op\": \"add\", \"path\": \"/data/apicast_app_key\", \"value\":\"{{ encoded_app_key.stdout }}\"}]' -n {{ namespace }}"
 
+- name: "Rollout apicast to pick up on proxy changes from 3scale.net"
+  shell: "oc rollout latest dc/apicast -n {{ namespace }}"
+
