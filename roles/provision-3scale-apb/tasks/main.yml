@@ -48,7 +48,7 @@
   shell: "oc expose service apicast --port={{ threescale_port }} -n {{ namespace }}"
 
 - name: "Get route"
-  shell: "oc get route/apicast --template=\"http://{{.spec.host}}\" -n {{ namespace }}"
+  shell: "oc get route/apicast --template=\"http://{{ '{{' }}.spec.host{{ '}}' }}\" -n {{ namespace }}"
   register: apicast_route
 
 - name: "Create 3scale basic-auth secret template"
