@@ -35,14 +35,6 @@
         port: 6379
         target_port: 6379
 
-- name: "Create 3scale basic-auth secret template"
-  template:
-    src: secret.yml.j2
-    dest: /tmp/secret.yaml
-
-- name: "Create 3scale basic-auth secret"
-  shell: "oc create -f /tmp/secret.yaml -n {{ namespace }}"
-
 - name: "Create 3scale resources"
   shell: "oc new-app -f {{ threescale_deploy_template }} -n {{ namespace }}"
 
@@ -54,6 +46,18 @@
 
 - name: "Expose route for 3scale"
   shell: "oc expose service apicast --port={{ threescale_port }} -n {{ namespace }}"
+
+- name: "Get route"
+  shell: "oc get route/apicast --template=\"http://{{.spec.host}}\" -n {{ namespace }}"
+  register: apicast_route
+
+- name: "Create 3scale basic-auth secret template"
+  template:
+    src: secret.yml.j2
+    dest: /tmp/secret.yaml
+
+- name: "Create 3scale basic-auth secret"
+  shell: "oc create -f /tmp/secret.yaml -n {{ namespace }}"
 
 - block:
   - name: "Download cors.lua"
