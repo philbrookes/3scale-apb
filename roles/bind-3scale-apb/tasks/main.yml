@@ -3,18 +3,45 @@
     src: ../files/bind.sh
     dest: /tmp/
 
+- name: Create app_id.sh
+  copy:
+    src: ../files/app_id.sh
+    dest: /tmp/
+
 - name: Make bind script executable
   file:
     dest: /tmp/bind.sh
     mode: u+x
 
-- name: Get 3scale token
-  shell: oc get secret {{ bind_params.threescale_secret_name }} -o json | jq ".data.password" | tr -d '"' | base64 -d | cut -f1 -d'@' | cut -f3 -d'/'
-  register: threescale_token_raw
-
-- name: Get 3scale url
-  shell: oc get secret {{ bind_params.threescale_secret_name }} -o json | jq ".data.password" | tr -d '"' | base64 -d | cut -f2 -d'@'
-  register: threescale_url_raw
+- name: Make appid script executable
+  file:
+    dest: /tmp/app_id.sh
+    mode: u+x
 
 - name: Execute bind script
-  shell: bash /tmp/bind.sh "{{ threescale_token_raw.stdout }}" "https://{{ threescale_url_raw.stdout }}" "{{ provision_params.THREESCALE_SERVICE_ID }}" "{{ bind_params.apicast_route }}" "{{ bind_params.service_route }}" "{{ bind_params.service_secret_name }}" "{{ bind_params.app_key }}"
+  shell: bash /tmp/bind.sh "{{ apicast_token }}" "{{ credentials.route }}" "{{ apicast_service_id }}" "{{ apicast_route }}" "{{ service_route }}" "{{ service_name }}" "{{ app_key }}"
+
+- name: Get 3Scale App ID
+  shell: bash /tmp/app_id.sh "{{ apicast_token }}" "{{ credentials.route }}" "{{ apicast_service_id }}"
+  register: threescale_app_id
+
+- debug: var=threescale_app_id.stdout
+
+- name: Encode apicast route
+  shell: echo -n "{{ apicast_route }}" | base64
+  register: encoded_apicast_route
+
+- name: Encode app_id
+  shell: echo -n "{{ threescale_app_id.stdout }}" | base64
+  register: encoded_app_id
+
+- name: Encode app_key
+  shell: echo -n "{{ app_key }}" | base64
+  register: encoded_app_key
+
+- name: "Update Service Secret with apicast/3scale details"
+  shell: "oc patch secret/{{ service_secret }} --type=json -p '[{\"op\": \"add\", \"path\": \"/data/apicast_route\", \"value\":\"{{ encoded_apicast_route.stdout }}\"},{\"op\": \"add\", \"path\": \"/data/apicast_app_id\", \"value\":\"{{ encoded_app_id.stdout }}\"},{\"op\": \"add\", \"path\": \"/data/apicast_app_key\", \"value\":\"{{ encoded_app_key.stdout }}\"}]' -n {{ namespace }}"
+
+- name: "Rollout apicast to pick up on proxy changes from 3scale.net"
+  shell: "oc rollout latest dc/apicast -n {{ namespace }}"
+
