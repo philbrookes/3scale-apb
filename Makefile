@@ -1,5 +1,6 @@
 DOCKERHOST = docker.io
 DOCKERORG = feedhenry
+IMAGENAME = 3scale-apb
 TAG = latest
 USER=$(shell id -u)
 PWS=$(shell pwd)
@@ -14,15 +15,15 @@ build: apb_build
 .PHONY: apb_build
 apb_build:
 	docker run --rm --privileged -v $(PWD):/mnt:z -v $(HOME)/.kube:/.kube -v /var/run/docker.sock:/var/run/docker.sock -u $(USER) docker.io/ansibleplaybookbundle/apb:latest prepare
-	docker build -t $(DOCKERHOST)/$(DOCKERORG)/3scale-apb:$(TAG) .
+	docker build -t $(DOCKERHOST)/$(DOCKERORG)/$(IMAGENAME):$(TAG) .
 
 .PHONY: docker_push
 docker_push:
-	docker push $(DOCKERHOST)/$(DOCKERORG)/3scale-apb:$(TAG)
+	docker push $(DOCKERHOST)/$(DOCKERORG)/$(IMAGENAME):$(TAG)
 
 .PHONY: apb_push
 apb_push:
-	docker run --rm --privileged -v $(PWD):/mnt:z -v $(HOME)/.kube:/.kube -v /var/run/docker.sock:/var/run/docker.sock -u $(USER) docker.io/ansibleplaybookbundle/apb:latest push
+	 docker run --rm --privileged -v $(PWD):/mnt:z -v $(HOME)/.kube:/.kube -v /var/run/docker.sock:/var/run/docker.sock -u $(USER) docker.io/ansibleplaybookbundle/apb:latest push
 
 .PHONY: apb_release
 apb_release:
