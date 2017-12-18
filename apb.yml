@@ -12,7 +12,9 @@ tags:
   - mobile-service
 metadata:
   displayName: 3Scale
-  console.openshift.io/iconClass: fa fa-superpowers
+  imageUrl: "https://avatars1.githubusercontent.com/u/21415?s=200&v=4"
+  documentationUrl: "https://www.3scale.net/api-management/interactive-api-documentation/"
+  providerDisplayName: "Red Hat, Inc."
   serviceName: 3scale
 plans:
   - name: default
