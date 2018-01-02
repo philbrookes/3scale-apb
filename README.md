@@ -1,8 +1,8 @@
 # 3Scale APB
 
-[![](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/feedhenry/3scale-apb/)
-[![Docker Stars](https://img.shields.io/docker/stars/feedhenry/3scale-apb.svg)](https://registry.hub.docker.com/v2/repositories/feedhenry/3scale-apb/stars/count/)
-[![Docker pulls](https://img.shields.io/docker/pulls/feedhenry/3scale-apb.svg)](https://registry.hub.docker.com/v2/repositories/feedhenry/3scale-apb/)
+[![](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/aerogearcatalog/3scale-apb/)
+[![Docker Stars](https://img.shields.io/docker/stars/aerogearcatalog/3scale-apb.svg)](https://registry.hub.docker.com/v2/repositories/aerogearcatalog/3scale-apb/stars/count/)
+[![Docker pulls](https://img.shields.io/docker/pulls/aerogearcatalog/3scale-apb.svg)](https://registry.hub.docker.com/v2/repositories/aerogearcatalog/3scale-apb/)
 [![License](https://img.shields.io/:license-Apache2-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 ## Local Development
