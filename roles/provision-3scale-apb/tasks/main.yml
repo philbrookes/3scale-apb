@@ -1,3 +1,10 @@
+- name: Get the name of the service instance
+  shell: oc get serviceinstance --namespace={{ namespace }} -o jsonpath='{.items[?(@.spec.externalID=="{{ _apb_service_instance_id }}")].metadata.name}'
+  register: service_instance_name
+
+- name: Label the service instance with the service name
+  shell: oc label serviceinstance '{{ service_instance_name.stdout }}' serviceName=3scale --namespace={{ namespace }}
+
 - name: create 3Scale Redis deployment config
   openshift_v1_deployment_config:
     name: '{{ threescale_redis_name }}'
