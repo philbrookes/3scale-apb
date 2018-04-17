@@ -9,35 +9,16 @@
 
 ### Requirements
 
-- [apb](https://github.com/ansibleplaybookbundle/ansible-playbook-bundle/blob/master/README.md#installing-the-apb-tool)
-- local [catasb](https://github.com/fusor/catasb) or similar oc cluster, which is configured to read from your docker org.
-
-**NOTE:**
-Due to our usage of an older version of the ASB, it is recommended using the `apb` CLI like the following:
-
-```bash
-alias apb='docker run --rm --privileged -v $PWD:/mnt -v $HOME/.kube:/.kube -v /var/run/docker.sock:/var/run/docker.sock -u $UID docker.io/ansibleplaybookbundle/apb-tools:latest'
-```
-
-Instead of the `abp` alias, you might want to use a modified alias, such as `apb-fh`, to not conflict w/ other versions that might be installed already on your machine.
+- Setup OpenShift Origin [development environment](https://github.com/ansibleplaybookbundle/ansible-playbook-bundle/blob/master/docs/getting_started.md#development-environment) for APB development.
+- Install [apb tool](https://github.com/ansibleplaybookbundle/ansible-playbook-bundle/blob/master/docs/apb_cli.md)
 
 ### Process
 
-After making your required changes, update the `apb.yml` to point at your own docker organisation, run:
-
 ```bash
-make DOCKERORG=<your docker org> DOCKERHOST=<defaulting to docker.io>
+apb push
 ```
 
-Login to your oc cluster:
-
-```bash
-oc login -u developer -p any
-```
-
-Now you can run `apb bootstrap` to update the catalog in your local cluster and see your local copy of this apb image.
-
-If no changes were made to the apb.yml, then you do not need to run bootstrap for the changes to the ansible playbooks to be reflected in your local cluster (this is because the image already exists in your local docker registry).
+For more extensive documentation on APB development and apb command line options, please read the ansible playbook bundle [docs](https://github.com/ansibleplaybookbundle/ansible-playbook-bundle/tree/master/docs).
 
 ## Submitting Changes
 
