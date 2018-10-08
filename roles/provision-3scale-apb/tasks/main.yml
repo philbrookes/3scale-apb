@@ -1,17 +1,98 @@
+- name: Get the name of the service instance
+  shell: oc get serviceinstance --namespace={{ namespace }} -o jsonpath='{.items[?(@.spec.externalID=="{{ _apb_service_instance_id }}")].metadata.name}'
+  when: _apb_service_instance_id is defined
+  register: service_instance_name
+
+- name: Label the service instance with the service name
+  shell: oc label serviceinstance '{{ service_instance_name.stdout }}' serviceName=3scale --namespace={{ namespace }}
+  when: _apb_service_instance_id is defined
+
+- name: create 3Scale Redis deployment config
+  openshift_v1_deployment_config:
+    name: '{{ threescale_redis_name }}'
+    namespace: '{{ namespace }}'
+    labels:
+      app: 3scale-gateway
+      service: 3scale-gateway
+    replicas: 1
+    selector:
+      app: 3scale-gateway
+      service: 3scale-gateway
+    spec_template_metadata_labels:
+      app: 3scale-gateway
+      service: 3scale-gateway
+    containers:
+    - env:
+      image: docker.io/rhmap/redis:2.18.22
+      name: '{{ threescale_redis_name }}'
+      ports:
+      - container_port: 6379
+        protocol: TCP
+
+- name: create 3Scale Redis service
+  k8s_v1_service:
+    name: '{{ threescale_redis_name }}'
+    namespace: '{{ namespace }}'
+    labels:
+      app: 3scale-gateway
+      service: 3scale-gateway
+    selector:
+      app: 3scale-gateway
+      service: 3scale-gateway
+    ports:
+      - name: '{{ threescale_redis_name }}'
+        port: 6379
+        target_port: 6379
+
+- name: "Create 3scale resources"
+  shell: "oc new-app -f {{ threescale_deploy_template }} -n {{ namespace }}"
+
+- name: "update redis_url in 3scale deployment config"
+  shell: "oc env dc/apicast --overwrite REDIS_URL=redis://'{{ threescale_redis_name }}':6379 -n {{ namespace }}"
+
+- name: "Update deployment image name"
+  shell: "oc patch dc/apicast --type='json' -p='[{\"op\": \"replace\", \"path\": \"/spec/template/spec/containers/0/image\", \"value\":\"{{ threescale_image }}\"}]' -n {{ namespace }}"
+
+- name: "Expose route for 3scale"
+  shell: "oc expose service apicast --port={{ threescale_port }} -n {{ namespace }}"
+
+- name: "Get route"
+  shell: "oc get route/apicast --template=\"http://{{ '{{' }}.spec.host{{ '}}' }}\" -n {{ namespace }}"
+  register: apicast_route
+
 - name: "Create 3scale basic-auth secret template"
   template:
     src: secret.yml.j2
     dest: /tmp/secret.yaml
 
 - name: "Create 3scale basic-auth secret"
-  shell: "oc create -f /tmp/secret.yaml"
+  shell: "oc create -f /tmp/secret.yaml -n {{ namespace }}"
 
-- name: "Create 3scale resources"
-  shell: "oc new-app -f {{ threescale_deploy_template }}"
+- block:
+  - name: "Download cors.lua"
+    get_url:
+      url: "{{ threescale_apicast_cors }}"
+      dest: "/tmp/cors.lua"
 
-- name: "Update deployment image name"
-  shell: "oc patch dc/apicast --type='json' -p='[{\"op\": \"replace\", \"path\": \"/spec/template/spec/containers/0/image\", \"value\":\"{{ threescale_image }}\"}]'"
+  - name: "Download cors.conf"
+    get_url:
+      url: "{{ threescale_apicast_cors_config }}"
+      dest: "/tmp/cors.conf"
 
-- name: "Expose route for 3scale"
-  shell: "oc expose service apicast --port={{ threescale_port }}"
+  - name: "Create cors.lua configmap"
+    shell: "oc create configmap apicast-cors --from-file=/tmp/cors.lua -n {{ namespace }}"
+  - name: "Create cors.conf configmap"
+    shell: "oc create configmap cors-conf --from-file=/tmp/cors.conf -n {{ namespace }}"
+  - name: "Create cors.lua volume"
+    shell: "oc set volume dc/apicast --add --name=apicast-cors --mount-path /opt/app-root/src/src/cors.lua --source='{\"configMap\":{\"name\":\"apicast-cors\",\"items\":[{\"key\":\"cors.lua\",\"path\":\"cors.lua\"}]}}' -n {{ namespace }}"
+  - name: "Create cors.conf volume"
+    shell: "oc set volume dc/apicast --add --name=cors-conf --mount-path /opt/app-root/src/apicast.d/cors.conf --source='{\"configMap\":{\"name\":\"cors-conf\",\"items\":[{\"key\":\"cors.conf\",\"path\":\"cors.conf\"}]}}' -n {{ namespace }}"
+  - name: "Patch apicast deployconfig with new volumes"
+    shell: "oc patch dc/apicast --type=json -p '[{\"op\": \"add\", \"path\": \"/spec/template/spec/containers/0/volumeMounts/1/subPath\", \"value\":\"cors.lua\"},{\"op\": \"add\", \"path\": \"/spec/template/spec/containers/0/volumeMounts/0/subPath\", \"value\":\"cors.conf\"}]' -n {{ namespace }}"
+  - name: "Enable cors in apicast env var"
+    shell: "oc env dc/apicast APICAST_MODULE=cors -n {{ namespace }}"
 
+  when:
+    - THREESCALE_ENABLE_CORS == true
+
+    

@@ -1,11 +1,21 @@
+version: 1.0
 name: 3scale-apb
-image: feedhenry/3scale-apb
-description: Unlock the power of your APIs
-bindable: False
+description: >
+  Unlock the power of your APIs. This will deploy Apicast to your Openshift cluster and connect 
+  it to a dedicated Redis. For this to function correctly it needs to be configured with a token
+  and domain for the account it should pull it's configuration values from (usually in 3scale.net).
+
+  You can create an account with 3scale.net here: https://www.3scale.net/signup/
+bindable: True
 async: optional
+tags:
+  - mobile-service
 metadata:
   displayName: 3Scale
-  console.openshift.io/iconClass: fa fa-superpowers
+  imageUrl: "https://avatars1.githubusercontent.com/u/21415?s=200&v=4"
+  documentationUrl: "https://www.3scale.net/api-management/interactive-api-documentation/"
+  providerDisplayName: "Red Hat, Inc."
+  serviceName: 3scale
 plans:
   - name: default
     description: Deploy 3Scale
@@ -22,3 +32,14 @@ plans:
       default: 
       type: string
       title: 3Scale access token (https://support.3scale.net/docs/accounts/tokens#creating-access-tokens)
+    - name: THREESCALE_SERVICE_ID
+      required: True
+      default: 
+      type: string
+      title: 3Scale service id
+    - name: THREESCALE_ENABLE_CORS
+      required: True
+      default: True
+      type: bool
+      title: Enable CORS 3Scale plugin?
+

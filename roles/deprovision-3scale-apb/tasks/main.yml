@@ -1,8 +1,23 @@
 - 
+  name: delete 3scale redis resources
+  command: oc delete {{ item }} {{ threescale_redis_name }}
+  with_items:
+    - service
+    - dc
+- 
   name: delete apicast resoures
   command: oc delete {{ item }} {{ threescale_name }}
   with_items:
-    - secret
     - dc
     - service
     - route
+
+- 
+  name: delete apicast config url secret
+  command: oc delete secret apicast-configuration-url-secret
+
+- name: delete cors plugin configmaps
+  command: oc delete configmap {{ item }}
+  with_items:
+    - apicast-cors
+    - cors-conf
